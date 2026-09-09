@@ -1,11 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "EKOS8fCwIEU=",
+  "dgSpecHash": "ALNDrVNc0F0=",
   "success": true,
   "projectFilePath": "C:\\Users\\lengyelcs\\Desktop\\teszt\\BlogApi\\BlogApi\\BlogApi.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\lengyelcs\\.nuget\\packages\\microsoft.aspnetcore.openapi\\10.0.11\\microsoft.aspnetcore.openapi.10.0.11.nupkg.sha512",
     "C:\\Users\\lengyelcs\\.nuget\\packages\\microsoft.openapi\\2.7.5\\microsoft.openapi.2.7.5.nupkg.sha512",
+    "C:\\Users\\lengyelcs\\.nuget\\packages\\mysqlconnector\\2.6.2\\mysqlconnector.2.6.2.nupkg.sha512",
     "C:\\Users\\lengyelcs\\.nuget\\packages\\scalar.aspnetcore\\2.17.3\\scalar.aspnetcore.2.17.3.nupkg.sha512"
   ],
   "logs": []
