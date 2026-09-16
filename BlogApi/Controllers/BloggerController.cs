@@ -1,8 +1,10 @@
 ﻿using BlogApi.Models;
+using BlogApi.Models.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using MySqlConnector;
-using BlogApi.Models.DTOs;
 
 namespace BlogApi.Controllers
 {
@@ -10,37 +12,49 @@ namespace BlogApi.Controllers
     [ApiController]
     public class BloggerController : ControllerBase
     {
-        private readonly string ConnectionString = "Server=localhost;Database=blog;User Id=root;Password=";
+        private readonly string ConnectionString = "server=localhost;database=blog13b;uid=root;password=";
+
         [HttpGet]
-        public List<Blogger> GetAllBloggers()
+        public List<Blogger> GetAllBlogger()
         {
             List<Blogger> bloggers = new();
+
             var connector = new MySqlConnection(ConnectionString);
+
             connector.Open();
-            string sql = "SELECT * FROM blogger";
+
+            string sql = "SELECT * FROM blogger;";
+
             var cmd = new MySqlCommand(sql, connector);
-            var dr = cmd.ExecuteReader();
-            while (dr.Read())
+
+            var dataReader = cmd.ExecuteReader();
+
+            while (dataReader.Read())
             {
                 var blogger = new Blogger
                 {
-                    Id = dr.GetInt32("Id"),
-                    Name = dr.GetString("Name"),
-                    Email = dr.GetString("Email"),
-                    Age = dr.GetInt32("Age"),
-                    Password = dr.GetString("Password"),
-                    RegistrationTime = dr.GetDateTime("RegistrationTime")
+                    Id = dataReader.GetInt32(0),
+                    Name = dataReader.GetString(1),
+                    Email = dataReader.GetString(2),
+                    Age = dataReader.GetInt32(3),
+                    Password = dataReader.GetString(4),
+                    RegistrationTime = dataReader.GetDateTime(5)
                 };
+
                 bloggers.Add(blogger);
             }
+
             connector.Close();
             return bloggers;
         }
+
         [HttpPost]
-        public object AddNewBlogger(AddBloggerDTOs blogger)
+        public Blogger AddNewBlogger(AddBloggerDTOs blogger)
         {
             var connector = new MySqlConnection(ConnectionString);
+
             connector.Open();
+
             var blg = new Blogger
             {
                 Name = blogger.Name,
@@ -50,44 +64,74 @@ namespace BlogApi.Controllers
                 RegistrationTime = DateTime.Now
             };
 
-            var sql = $"INSERT INTO `blogger`(`Name`, `Email`, `Age`, `Password`, `RegistrationTime`) VALUES (@name,@email,@age,@password,@registrationTime)";
+            var sql = $"INSERT INTO `blogger`(`name`, `email`, `age`, `password`, `RegistrationTime`) VALUES (@name,@email,@age,@password,@registrationtime)";
+
             var cmd = new MySqlCommand(sql, connector);
+
             cmd.Parameters.AddWithValue("@name", blg.Name);
             cmd.Parameters.AddWithValue("@email", blg.Email);
             cmd.Parameters.AddWithValue("@age", blg.Age);
             cmd.Parameters.AddWithValue("@password", blg.Password);
-            cmd.Parameters.AddWithValue("@registrationTime", blg.RegistrationTime);
+            cmd.Parameters.AddWithValue("@registrationtime", blg.RegistrationTime);
+
             cmd.ExecuteNonQuery();
+
             connector.Close();
+
             return blg;
         }
+
         [HttpPut]
-        public object UpdateBlogger(int id, Blogger blogger)
+        public object UpdateBlogger([FromQuery] int id, [FromBody] UpdateBloggerDto updateBloggerDto)
         {
             var connector = new MySqlConnection(ConnectionString);
+
             connector.Open();
-            var sql = $"UPDATE `blogger` SET `Name`=@name,`Email`=@email,`Age`=@age,`Password`=@password WHERE `Id`=@id";
+
+            string sql = @"UPDATE `blogger` SET `name`=@name,`email`=@email,`age`=@age,`password`=@password 
+                WHERE `id`= @id;";
+
             var cmd = new MySqlCommand(sql, connector);
-            cmd.Parameters.AddWithValue("@name", blogger.Name);
-            cmd.Parameters.AddWithValue("@email", blogger.Email);
-            cmd.Parameters.AddWithValue("@age", blogger.Age);
-            cmd.Parameters.AddWithValue("@password", blogger.Password);
+
+            cmd.Parameters.AddWithValue("@name", updateBloggerDto.Name);
+            cmd.Parameters.AddWithValue("@email", updateBloggerDto.Email);
+            cmd.Parameters.AddWithValue("@age", updateBloggerDto.Age);
+            cmd.Parameters.AddWithValue("@password", updateBloggerDto.Password);
             cmd.Parameters.AddWithValue("@id", id);
+
             cmd.ExecuteNonQuery();
+
+            var updatedBlogger = new UpdateBloggerDto
+            {
+                Name = updateBloggerDto.Name,
+                Email = updateBloggerDto.Email,
+                Age = updateBloggerDto.Age,
+                Password = updateBloggerDto.Password
+            };
+
             connector.Close();
-            return blogger;
+
+            return new { message = "Sikeres frissítés.", result = updatedBlogger };
         }
+
         [HttpDelete]
         public object DeleteBlogger(int id)
         {
             var connector = new MySqlConnection(ConnectionString);
+
             connector.Open();
-            var sql = $"DELETE FROM `blogger` WHERE `Id`=@id";
+
+            var sql = $"DELETE FROM blogger WHERE id = @id";
+
             var cmd = new MySqlCommand(sql, connector);
-            cmd.Parameters.AddWithValue("@id", id);
+
+            cmd.Parameters.AddWithValue(@"id", id);
+
             cmd.ExecuteNonQuery();
+
             connector.Close();
-            return null;
+
+            return new { message = "Sikeres tölrés" };
         }
     }
 }
