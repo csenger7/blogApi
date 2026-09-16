@@ -94,5 +94,33 @@ namespace BlogApi.Controllers
             connector.Close();
             return "Ennyi darab post van:" + darab;
         }
+        [HttpGet("Darab2")]
+        public object GetAllPostBlog(int id)
+        {
+            List<post> posts = new();
+            int darab = 0;
+            var connector = new MySqlConnection(ConnectionString);
+            connector.Open();
+            string sql = "SELECT * FROM blogpost WHERE `blogId`=@blogId";
+            var cmd = new MySqlCommand(sql, connector);
+            cmd.Parameters.AddWithValue("@blogId", id);
+            var dr = cmd.ExecuteReader();
+            while (dr.Read())
+            {
+                var post = new post
+                {
+                    Id = dr.GetInt32("Id"),
+                    Title = dr.GetString("Title"),
+                    Content = dr.GetString("Content"),
+                    postTime = dr.GetDateTime("postTime"),
+                    updateTime = dr.GetDateTime("updateTime"),
+                    blogId = dr.GetInt32("blogId")
+                };
+                posts.Add(post);
+                darab++;
+            }
+            connector.Close();
+            return "Ennyi postja van a keresett bloggernek:" + darab;
+        }
     }
 }
